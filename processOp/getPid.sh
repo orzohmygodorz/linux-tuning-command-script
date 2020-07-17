@@ -3,10 +3,10 @@
 #
 argArray=("$@")
 if [[ "${#argArray[@]}" == "0" ]]; then
-    echo "Usage: ./servicePid.sh -s <service_name>"
+    echo "Usage: ./daemonPid.sh <daemon_name>"
     exit 0
 fi
-service_name=${argArray[0]}
+process_name=${argArray[0]}
 unset argArray
 
 #
@@ -14,13 +14,17 @@ unset argArray
 #
 service_pid_array=()
 get_service_pid() {
-    mapfile -t psArray < <( ps -mo pid,tid,comm -C $service_name )
+    mapfile -t psArray < <( ps -A | grep "$process_name*" )
     #echo ${psArray[@]}
     for ((i=0; i<${#psArray[@]}; i++)); do
-        if [[ "${psArray["$i"]}" == *"$service_name"* ]]; then
+        #echo ${psArray[$i]}
+        if [[ "${psArray["$i"]}" == *"$process_name"* ]]; then
             #echo "${psArray["$i"]}"
             for j in "${psArray["$i"]}"; do
-                service_pid_array+=( "$( echo "$j" | cut -d" " -f 1)" )
+                j=( $j )
+                # Print lfsm_bh0 ~ lfsm_bh2
+                #echo $( echo "$j" | cut -d":" -f 3 | cut -d" " -f 2)
+                service_pid_array+=( "$( echo "$j" | cut -d" " -f 2)" )
                 break
             done
         fi
@@ -33,7 +37,7 @@ get_service_pid() {
 #
 clean() {
     unset service_pid_array
-    unset service_name
+    unset process_name
 }
 
 #
