@@ -3,7 +3,7 @@
 #
 argArray=("$@")
 if [[ "${#argArray[@]}" == "0" ]]; then
-    echo "Usage: ./daemonPid.sh <daemon_name>"
+    echo "Usage: ./getPid.sh <process_name>"
     exit 0
 fi
 process_name=${argArray[0]}
