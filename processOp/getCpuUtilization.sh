@@ -8,7 +8,7 @@ if [[ "${#argArray[@]}" == "0" ]]; then
     exit 0
 fi
 process_name=${argArray[0]}
-echo "Usage: ./getCpuUtilization.sh <process_name> <cpu_monitor_duration>"
+#echo "Usage: ./getCpuUtilization.sh <process_name> <cpu_monitor_duration>"
 
 pidArray=$( ./getPid.sh "$process_name" )
 pidArray=( $pidArray )
@@ -50,6 +50,20 @@ add_command_name() {
 }
 
 #
+# Print Matrix
+#
+print_matrix() {
+    for ((i=0; i<${#pidArray[@]}; i++)); do
+        printf "%d " ${cpuUtilizationMatrix[$i,0]}
+        for ((j=0; j<$cpu_monitor_duration; j++)); do
+            #printf "$i,$(( $j + 1 )) "
+            printf "%.2f " ${cpuUtilizationMatrix[$i,$(( $j + 1 ))]}
+        done
+        echo ${cpuUtilizationMatrix[$i,$(( $cpu_monitor_duration + 1 ))]}
+    done
+}
+
+#
 # clean
 #
 clean() {
@@ -64,12 +78,6 @@ clean() {
 
 list_process_cpu_utilization
 add_command_name
-for ((i=0; i<${#pidArray[@]}; i++)); do
-    printf "%d " ${cpuUtilizationMatrix[$i,0]}
-    for ((j=0; j<$cpu_monitor_duration; j++)); do
-        #printf "$i,$(( $j + 1 )) "
-        printf "%f " ${cpuUtilizationMatrix[$i,$(( $j + 1 ))]}
-    done
-    echo ${cpuUtilizationMatrix[$i,$(( $cpu_monitor_duration + 1 ))]}
-done
+print_matrix
+#echo ${cpuUtilizationMatrix[@]}
 clean
