@@ -41,11 +41,11 @@ list_cpu_utilization() {
         core_num_total=$( cat /proc/cpuinfo | grep processor | wc -l )
         for ((j=$((-1 * $core_num_total)); j<0; j++)); do
             #echo ${mpstatArray[$j]}
-            averageUtilizationPerCoreArray+=( $( echo 100.00 - $(echo ${mpstatArray[$j]} | rev | cut -d" " -f1 | rev) | bc ) )
+            averageUtilizationPerCoreArray+=( $(printf "%0.2f" $( echo 100.00 - $(echo ${mpstatArray[$j]} | rev | cut -d" " -f1 | rev) | bc -l )) )
         done
     else
         #echo ${mpstatArray[-1]}
-        averageUtilizationPerCoreArray+=( $( echo 100.00 - $(echo ${mpstatArray[-1]} | rev | cut -d" " -f1 | rev) | bc ) )
+        averageUtilizationPerCoreArray+=( $(printf "%0.2f" $( echo 100.00 - $(echo ${mpstatArray[-1]} | rev | cut -d" " -f1 | rev) | bc -l)) )
     fi
 
     unset mpstatArray core_num_total

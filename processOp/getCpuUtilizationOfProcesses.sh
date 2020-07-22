@@ -2,13 +2,12 @@
 # Parse the command line arguments
 #
 argArray=("$@")
-if [[ "${#argArray[@]}" == "0" ]]; then
-    echo "Usage: ./getCpuUtilization.sh <process_name>"
-    echo "Usage: ./getCpuUtilization.sh <process_name> <cpu_monitor_duration>"
+if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
+    echo "Usage: ./getCpuUtilizationOfProcesses.sh <process_name>"
+    echo "Usage: ./getCpuUtilizationOfProcesses.sh <process_name> <cpu_monitor_duration>"
     exit 0
 fi
 process_name=${argArray[0]}
-#echo "Usage: ./getCpuUtilization.sh <process_name> <cpu_monitor_duration>"
 
 pidArray=$( ./getPid.sh "$process_name" )
 pidArray=( $pidArray )
