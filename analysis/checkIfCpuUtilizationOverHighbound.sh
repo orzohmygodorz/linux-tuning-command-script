@@ -21,7 +21,7 @@ done
 #
 checkIfCpuUtilizationOverHighboundArray=()
 check_if_cpu_utilization_over_highbound() {
-    mapfile -t averageUtilizationPerCoreArray < <( ./../tools/mpstat/averageUtilizationPerCore.sh 1 $durationTime -P $cpuNum )
+    mapfile -t averageUtilizationPerCoreArray < <( ./../tools/mpstat/averageCpuUtilizationPerCore.sh 1 $durationTime -P $cpuNum )
     averageUtilizationPerCoreArray=( $averageUtilizationPerCoreArray )
     #echo ${averageUtilizationPerCoreArray[@]}
     for ((i=0; i<${#averageUtilizationPerCoreArray[@]}; i++)); do

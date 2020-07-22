@@ -3,7 +3,7 @@
 #
 argArray=("$@")
 if [[ "${#argArray[@]}" == "0" ]]; then
-    echo "Usage: ./averageUtilizationPerCore.sh [<interval_time> <monitor_times>] -P <core_num>"
+    echo "Usage: ./averageCpuUtilizationPerCore.sh [<interval_time> <monitor_times>] -P <core_num>"
     exit 0
 fi
 core_num="ALL"
