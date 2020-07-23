@@ -2,7 +2,7 @@
 # Parse the command line arguments
 #
 argArray=("$@")
-if [[ "${#argArray[@]}" == "0" ]]; then
+if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
     echo "Usage: ./averageCpuUtilizationPerCore.sh [<interval_time> <monitor_times>] -P <core_num>"
     exit 0
 fi

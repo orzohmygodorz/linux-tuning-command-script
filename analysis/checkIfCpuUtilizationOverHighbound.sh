@@ -25,7 +25,7 @@ check_if_cpu_utilization_over_highbound() {
     averageUtilizationPerCoreArray=( $averageUtilizationPerCoreArray )
     #echo ${averageUtilizationPerCoreArray[@]}
     for ((i=0; i<${#averageUtilizationPerCoreArray[@]}; i++)); do
-        if [[ ${averageUtilizationPerCoreArray[$i]} > 0.00 ]]; then
+        if [[ ${averageUtilizationPerCoreArray[$i]} > $highBound ]]; then
             checkIfCpuUtilizationOverHighboundArray+=( "true" )
         else
             checkIfCpuUtilizationOverHighboundArray+=( "false" )
