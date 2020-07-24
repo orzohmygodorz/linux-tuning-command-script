@@ -9,7 +9,7 @@ if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
 fi
 process_name=${argArray[0]}
 
-pidArray=$( ./getPid.sh "$process_name" )
+pidArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name getPid.sh))" "$process_name" )
 pidArray=( $pidArray )
 cpu_monitor_duration=3
 if [[ ${argArray[1]} != "" ]]; then cpu_monitor_duration=${argArray[1]}; fi

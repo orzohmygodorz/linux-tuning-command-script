@@ -54,7 +54,7 @@ numaNodesTotal=$( lscpu | grep 'NUMA node(s):' | awk '{print $NF}' )
 #
 # Get the Check If Cpu Utilization Over Highbound Array (True/False)
 #
-mapfile -t checkIfCpuUtilizationOverHighboundArray < <( ./../analysis/checkIfCpuUtilizationOverHighbound.sh --high-bound $highBound )
+mapfile -t checkIfCpuUtilizationOverHighboundArray < <( bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpuUtilizationOverHighbound.sh))" --high-bound $highBound )
 checkIfCpuUtilizationOverHighboundArray=( $checkIfCpuUtilizationOverHighboundArray )
 #echo ${checkIfCpuUtilizationOverHighboundArray[@]}
 
