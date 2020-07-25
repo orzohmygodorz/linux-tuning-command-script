@@ -106,7 +106,7 @@ clean() {
 #
 monitor_seconds=0
 while [ $monitor_seconds -lt $monitor_time ]; do
-    echo "=== " $monitor_seconds " ==="
+    echo "=== Monitor" $monitor_seconds "seconds ==="
     monitor_start
 
     if [[ $monitor_seconds != "0" ]]; then 
@@ -117,7 +117,7 @@ while [ $monitor_seconds -lt $monitor_time ]; do
     fi 
     let monitor_seconds+=1
     sleep 1
-    echo ${vmstatArray_alarm[@]}
+    echo "vmstatArray_alarm:" ${vmstatArray_alarm[@]}
 
     if $(vmstatArray_alarm_trigger); then
         break

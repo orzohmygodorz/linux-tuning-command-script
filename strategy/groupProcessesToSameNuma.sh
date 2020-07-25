@@ -3,13 +3,24 @@
 #
 argArray=("$@")
 if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
-    echo "Usage: ./groupProcessesToSameNuma.sh --process-name <process_name> [--high-bound <0~100> --duration-time <seconds>]"
+    echo "Usage: ./groupProcessesToSameNuma.sh --process-name <process_name> --analysis-result <analysisResult> \ 
+          [--high-bound <0.00~100.00> --duration-time <seconds>]"
     exit 0
 fi
+analysisResult=()
 processName=""
 highBound=90
 durationTime=5
 for ((i=0; i<${#argArray[@]}; i++)); do
+    if [[ ${argArray[$i]} == "--analysis-result" ]]; then
+        iIndex=1
+        while [ "$(echo "${argArray[$((i + iIndex))]}" | head -c2)" != "--" ] && [ "$(echo "${argArray[$((i + iIndex))]}" | head -c2)" != "" ]; do 
+            analysisResult+=( ${argArray[$((i + iIndex))]} )
+            ((iIndex++))
+        done
+        unset iIndex
+        #echo ${#analysisResult[@]} ${analysisResult[@]}
+    fi
     if [[ ${argArray[$i]} == "--process-name" ]]; then processName=${argArray[($i + 1)]}; fi
     if [[ ${argArray[$i]} == "--high-bound" ]]; then highBound=${argArray[($i + 1)]}; fi
     if [[ ${argArray[$i]} == "--duration-time" ]]; then durationTime=${argArray[($i + 1)]}; fi
@@ -19,7 +30,7 @@ if [[ "$processName" == "" ]]; then
     echo "Usage: ./groupProcessesToSameNuma.sh --process-name <process_name> [--high-bound <0~100>]"
     exit 0
 else
-    processPidArray=$( ./../processOp/getPid.sh "$processName" )
+    processPidArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name getPid.sh))" "$processName" )
     processPidArray=( $processPidArray )
     if [[ ${#processPidArray[@]} -eq 0 ]]; then
         echo "Error Process Name."
@@ -54,8 +65,12 @@ numaNodesTotal=$( lscpu | grep 'NUMA node(s):' | awk '{print $NF}' )
 #
 # Get the Check If Cpu Utilization Over Highbound Array (True/False)
 #
-mapfile -t checkIfCpuUtilizationOverHighboundArray < <( bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpuUtilizationOverHighbound.sh))" --high-bound $highBound )
-checkIfCpuUtilizationOverHighboundArray=( $checkIfCpuUtilizationOverHighboundArray )
+if [[ "${#analysisResult[@]}" -eq "0" ]]; then
+    mapfile -t checkIfCpuUtilizationOverHighboundArray < <( bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpuUtilizationOverHighbound.sh))" --high-bound $highBound )
+    checkIfCpuUtilizationOverHighboundArray=( $checkIfCpuUtilizationOverHighboundArray )
+else
+    checkIfCpuUtilizationOverHighboundArray=( ${analysisResult[@]} )
+fi
 #echo ${checkIfCpuUtilizationOverHighboundArray[@]}
 
 #
@@ -136,6 +151,7 @@ clean() {
     unset coresTotal threadsPerCore coresPerSocket numaNodesTotal
     unset processPidArray
     unset highBound
+    unset analysisResult
     unset argArray
 }
 
