@@ -1,5 +1,10 @@
 # sofaEvent.sh
 
+filename=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")") 
+serviceName="${filename%%Event*}"
+#echo $serviceName
+optimService=("lfsm_io" "lfsm_bh")
+
 #
 # Analysis
 #
@@ -8,22 +13,26 @@ echo "=== Check If There is a CPU-bound Service ==="
 bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpubound.sh))"; echo
 
 echo "=== Average Cpu Utilization Per Core ==="
-echo "--duration-time 5 --cpu ALL"
-averageUtilizationPerCoreArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name averageCpuUtilizationPerCore.sh))" 1 8 --P ALL )
+averageUtilizationPerCoreArg="--duration-time 10 --cpu ALL"
+echo $averageUtilizationPerCoreArg
+averageUtilizationPerCoreArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name averageCpuUtilizationPerCore.sh))" 1 10 --P ALL )
 averageUtilizationPerCoreArray=( $averageUtilizationPerCoreArray )
 echo "averageUtilizationPerCoreArray:" ${averageUtilizationPerCoreArray[@]}; echo
 
 echo "=== Check If CPU Utilization Over Highbound? ==="
-echo "--high-bound 85.00 --duration-time 5 --cpu ALL"
-checkIfCpuUtilizationOverHighboundArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpuUtilizationOverHighbound.sh))" --analysis-result ${averageUtilizationPerCoreArray[@]} --high-bound 85.00 --cpu ALL )
+checkIfCpuUtilizationOverHighboundArg="--high-bound 60.00 --duration-time 5 --cpu ALL"
+echo $checkIfCpuUtilizationOverHighboundArg
+checkIfCpuUtilizationOverHighboundArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name checkIfCpuUtilizationOverHighbound.sh))" --analysis-result ${averageUtilizationPerCoreArray[@]} $checkIfCpuUtilizationOverHighboundArg )
 checkIfCpuUtilizationOverHighboundArray=( $checkIfCpuUtilizationOverHighboundArray )
 echo "checkIfCpuUtilizationOverHighboundArray:" ${checkIfCpuUtilizationOverHighboundArray[@]}; echo
 
 printf "\n#\n# Strategy\n#\n\n"
 echo "=== Group Processes To Same Numa ==="
-groupProcessesToSameNumaOfCoresArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name groupProcessesToSameNuma.sh))"  --analysis-result ${checkIfCpuUtilizationOverHighboundArray[@]} --process-name lfsm_bh )
-groupProcessesToSameNumaOfCoresArray=( $groupProcessesToSameNumaOfCoresArray )
-echo "groupProcessesToSameNumaOfCoresArray:" ${groupProcessesToSameNumaOfCoresArray[@]}; echo
-
+for ((i=0; i<${#optimService[@]}; i++)); do
+    groupProcessesToSameNumaOfCoresArg="--process-name ${optimService[$i]}"
+    groupProcessesToSameNumaOfCoresArray=$( bash "$(realpath --relative-to="$PWD" $(find / -name groupProcessesToSameNuma.sh))" --analysis-result ${checkIfCpuUtilizationOverHighboundArray[@]} $groupProcessesToSameNumaOfCoresArg )
+    groupProcessesToSameNumaOfCoresArray=( $groupProcessesToSameNumaOfCoresArray )
+    echo "${optimService[$i]}" "groupProcessesToSameNumaOfCoresArray:" ${groupProcessesToSameNumaOfCoresArray[@]};
+done
 
 

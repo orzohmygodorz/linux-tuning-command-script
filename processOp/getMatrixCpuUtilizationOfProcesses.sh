@@ -1,6 +1,6 @@
 #
 # Parse the command line arguments
-#
+# ps -mo pid,%cpu -p 7132 | sed -n 2p | awk {'{print $2}'}
 argArray=("$@")
 if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
     echo "Usage: ./getCpuUtilizationOfProcesses.sh <process_name>"

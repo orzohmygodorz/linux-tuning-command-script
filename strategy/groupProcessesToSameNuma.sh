@@ -72,6 +72,24 @@ else
     checkIfCpuUtilizationOverHighboundArray=( ${analysisResult[@]} )
 fi
 #echo ${checkIfCpuUtilizationOverHighboundArray[@]}
+mapfile -t averageMatrixCpuUtilizationOfProcessesArray < <( bash "$(realpath --relative-to="$PWD" $(find / -name getAverageCpuUtilizationOfProcesses.sh))" --process-name $processName --duration-time $durationTime )
+averageMatrixCpuUtilizationOfProcessesArray=( $averageMatrixCpuUtilizationOfProcessesArray )
+#echo "averageMatrixCpuUtilizationOfProcessesArray:" ${averageMatrixCpuUtilizationOfProcessesArray[@]}
+mapfile -t processesPsrsArray  < <( bash "$(realpath --relative-to="$PWD" $(find / -name getProcessesPsrs.sh))" --process-name $processName )
+processesPsrsArray=( $processesPsrsArray )
+#echo "processesPsrsArray:" ${processesPsrsArray[@]}
+modifiedCoreArray=()
+for ((i=0; i<$coresTotal; i++)); do modifiedCoreArray[$i]="false"; done
+limitProcessCpuUtilization=50.00
+#echo "original checkIfCpuUtilizationOverHighboundArray:" ${checkIfCpuUtilizationOverHighboundArray[@]}
+for ((i=0; i<${#averageMatrixCpuUtilizationOfProcessesArray[@]}; i++)); do
+    if [ "${averageMatrixCpuUtilizationOfProcessesArray[$i]} > $limitProcessCpuUtilization" ] && [ "${modifiedCoreArray[$i]}" == "false" ]; then
+        checkIfCpuUtilizationOverHighboundArray[${processesPsrsArray[$i]}]="false"
+        modifiedCoreArray[${processesPsrsArray[$i]}]="true"
+        #echo "modifiedCoreArray[@]:" ${modifiedCoreArray[@]}
+    fi
+done
+#echo "new checkIfCpuUtilizationOverHighboundArray:" ${checkIfCpuUtilizationOverHighboundArray[@]}
 
 #
 # Group Processes To Same Numa Core Array
