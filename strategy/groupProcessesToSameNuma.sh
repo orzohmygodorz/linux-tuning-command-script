@@ -83,7 +83,10 @@ for ((i=0; i<$coresTotal; i++)); do modifiedCoreArray[$i]="false"; done
 limitProcessCpuUtilization=50.00
 #echo "original checkIfCpuUtilizationOverHighboundArray:" ${checkIfCpuUtilizationOverHighboundArray[@]}
 for ((i=0; i<${#averageMatrixCpuUtilizationOfProcessesArray[@]}; i++)); do
-    if [ "${averageMatrixCpuUtilizationOfProcessesArray[$i]} > $limitProcessCpuUtilization" ] && [ "${modifiedCoreArray[$i]}" == "false" ]; then
+    #echo ${averageMatrixCpuUtilizationOfProcessesArray[$i]} ">" $limitProcessCpuUtilization
+    if [ "${averageMatrixCpuUtilizationOfProcessesArray[$i]} > $limitProcessCpuUtilization" ] && \
+       [ "${modifiedCoreArray[${processesPsrsArray[$i]}]}" == "false" ]; then
+        #echo "modifiedCoreArray[${processesPsrsArray[$i]}]" $${modifiedCoreArray[${processesPsrsArray[$i]}]}
         checkIfCpuUtilizationOverHighboundArray[${processesPsrsArray[$i]}]="false"
         modifiedCoreArray[${processesPsrsArray[$i]}]="true"
         #echo "modifiedCoreArray[@]:" ${modifiedCoreArray[@]}
@@ -114,7 +117,7 @@ cpu_utilization_over_highbound_cores_total() {
     unset coreNumaNum busyCoreTotalCount
     #echo "busyCoreTotalArray:" ${busyCoreTotalArray[@]}
 }
-# Find the most idle Numa Array
+# Find the most idle Numa Array, {node0, node1}
 busyCoreTotalMin=""
 mostIdleNumaArray=()
 most_idle_numa() {
@@ -146,6 +149,7 @@ group_processes_to_same_numa_of_cores_array() {
         done
         #echo "avaliableGroupProcessesToSameNumaOfCoresArray" ${avaliableGroupProcessesToSameNumaOfCoresArray[@]}
         endIndex=${#processPidArray[@]}
+        #echo "checkIfCpuUtilizationOverHighboundArray:" ${checkIfCpuUtilizationOverHighboundArray[@]}
         for ((i=0; i<${#avaliableGroupProcessesToSameNumaOfCoresArray[@]}; i++)); do
             if ! ${checkIfCpuUtilizationOverHighboundArray[${avaliableGroupProcessesToSameNumaOfCoresArray[$i]}]}; then
                 groupProcessesToSameNumaOfCoresArray+=( ${avaliableGroupProcessesToSameNumaOfCoresArray[$i]} )
