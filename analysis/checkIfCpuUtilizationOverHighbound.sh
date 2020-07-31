@@ -8,18 +8,17 @@ if [ "${#argArray[@]}" == "0" ] || [ "${argArray[0]}" == "--help" ]; then
     exit 0
 fi
 analysisResult=()
-highBound=90
+highBound=90.00
 durationTime=5
 cpuNum="ALL"
 for ((i=0; i<${#argArray[@]}; i++)); do
     if [[ ${argArray[$i]} == "--analysis-result" ]]; then
-        index=1
+        iIndex=1
         while [ "$(echo "${argArray[$((i + iIndex))]}" | head -c2)" != "--" ] && [ "$(echo "${argArray[$((i + iIndex))]}" | head -c2)" != "" ]; do
             analysisResult+=( ${argArray[$((i + iIndex))]} )
             ((iIndex++))
         done
         unset iIndex
-        #echo ${#analysisResult[@]} ${analysisResult[@]}
     fi
     if [[ ${argArray[$i]} == "--high-bound" ]]; then highBound=${argArray[($i + 1)]}; fi
     if [[ ${argArray[$i]} == "--duration-time" ]]; then durationTime=${argArray[(i + 1)]}; fi
@@ -30,6 +29,7 @@ done
 #
 # Check if CPU Utilization Over Highbound
 #
+averageUtilizationPerCoreArray=()
 checkIfCpuUtilizationOverHighboundArray=()
 check_if_cpu_utilization_over_highbound() {
     if [[ "${#analysisResult[@]}" -eq "0" ]]; then
@@ -37,12 +37,14 @@ check_if_cpu_utilization_over_highbound() {
     else
         averageUtilizationPerCoreArray=( ${analysisResult[@]} )
     fi
-    averageUtilizationPerCoreArray=( $averageUtilizationPerCoreArray )
-    #echo "averageUtilizationPerCoreArray:" ${averageUtilizationPerCoreArray[@]}
+    averageUtilizationPerCoreArray=( ${averageUtilizationPerCoreArray[@]} )
     for ((i=0; i<${#averageUtilizationPerCoreArray[@]}; i++)); do
-        if [[ ${averageUtilizationPerCoreArray[$i]} > $highBound ]]; then
+        #echo ${averageUtilizationPerCoreArray[$i]}
+        if [[ "${averageUtilizationPerCoreArray[$i]}" > "$highBound" ]] || [[ "${averageUtilizationPerCoreArray[$i]}" == "100.00" ]]; then
+            #echo ${averageUtilizationPerCoreArray[$i]} ">" $highBound
             checkIfCpuUtilizationOverHighboundArray+=( "true" )
         else
+            #echo ${averageUtilizationPerCoreArray[$i]} "<" $highBound
             checkIfCpuUtilizationOverHighboundArray+=( "false" )
         fi
     done
@@ -54,7 +56,7 @@ check_if_cpu_utilization_over_highbound() {
 # clean
 #
 clean() {
-    unset checkIfCpuUtilizationOverHighboundArray
+    unset averageUtilizationPerCoreArray checkIfCpuUtilizationOverHighboundArray
     unset highBound durationTime cpuNum
     unset argArray
 }

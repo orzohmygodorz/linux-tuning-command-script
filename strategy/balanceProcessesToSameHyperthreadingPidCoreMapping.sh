@@ -48,8 +48,6 @@ processesPsrsArray=( $processesPsrsArray )
 #
 # Decentralize Processes To Different Hyperthreading
 #
-#hyperthreadingRemarkCoreArray=()
-#for ((i=0; i<$coresTotal; i++)); do hyperthreadingRemarkCoreArray[$i]="false"; done
 countProcessesOnPerCoreArray=()
 for ((i=0; i<$coresTotal; i++)); do countProcessesOnPerCoreArray[$i]=0; done
 count_processes_on_per_core() {

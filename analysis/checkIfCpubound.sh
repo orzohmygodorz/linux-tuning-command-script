@@ -131,13 +131,13 @@ done
 check_cpu_bound() {
     local cpu_bound=false
     # in and cs is high
-    if [ ${vmstatArray_alarm[10]} -gt "0" ] && [ ${vmstatArray_alarm[11]} -gt "0" ] && [ ${vmstatArray_alarm[0]} -gt "0" ]; then
+    if [ ${vmstatArray_alarm[10]} -gt "0" ] || [ ${vmstatArray_alarm[11]} -gt "0" ] || [ ${vmstatArray_alarm[0]} -gt "0" ]; then
         cpu_bound=true
     fi
     echo "$cpu_bound"
 }
 
 if $(check_cpu_bound); then
-    echo "This event is CPU-bound."
+    echo -e "\e[1;33mThis event is CPU-bound.\e[0m"
 fi
 clean
