@@ -1,3 +1,9 @@
+#
+# clean last test
+#
+cp /usr/sofa/config/sofa_config.xml_old /usr/sofa/config/sofa_config.xml
+rm -f $(find / -name sofaResult)
+
 # sofaEvent.sh
 filename=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")") 
 serviceName="${filename%%Event*}"
@@ -8,7 +14,18 @@ indexService=0
 #
 # SOFA Event
 #
-fio /root/00_rw.fio > ~/yihsuan/sofaResult &
+printf "\n#\n# Initial SOFA Service\n#\n\n"
+fio /root/00_rw.fio > sofaResult &
+sofaPid=$!
+while kill -0 $sofaPid 2> /dev/null; do
+    sleep 1
+done
+grep -F "IOPS" $(find / -name sofaResult)
+
+printf "\n#\n# Second SOFA Service\n#\n\n"
+fio /root/00_rw.fio > sofaResult &
+sofaPid=$!
+sleep 2
 
 #
 # Analysis
@@ -41,5 +58,16 @@ echo "${optimService[$indexService]}" "groupProcessesToSameNumaOfCoresArray:" ${
 printf "\n#\n# Executer\n#\n\n"
 echo "=== SOFA Modify Optimization Config ==="
 bash "$(realpath --relative-to="$PWD" $(find / -name sofaModifyOptimizationConfig.sh))" --service-name ${optimService[$indexService]} --core-list ${groupProcessesToSameNumaOfCoresArray[@]} 
+echo
+
+#
+# Performance after optimization
+#
+echo "=== Performance After Optimization ==="
+while kill -0 $sofaPid 2> /dev/null; do
+    sleep 1
+done
+grep -F "IOPS" $(find / -name sofaResult)
+
 
 
